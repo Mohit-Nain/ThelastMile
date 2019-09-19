@@ -1,0 +1,170 @@
+import React,{Component} from 'react';
+// import axios from 'axios';
+import './bootstrap.min.css';
+
+class Booking extends Component{
+    constructor(props){
+        super(props);
+        var formObject={
+
+          formValue:{
+            Name:"",
+            Email:"",
+            Cuisine:'',
+            Date_of_Booking:'',
+            Number_of_plates:0
+          },
+          formValidation:
+          {
+            isNameValid:false,
+            isEmailValid:false,
+            isCuisineValid:false,
+            isDate_of_BookingValid:false,
+            isNumber_of_platesValid:false
+          },
+          formValidationMessages:
+          {
+            NameValidationMessage:'Please enter valid name',
+            EmailValidationMessage:'Please enter Valid Email',
+            CuisineValidationMessage:'Please select cuisine name',
+            Date_of_BookingValidationMessage:'Booking Date should be greater than today',
+            Number_of_platesValidationMessage:'Number needs to be greater than zero'
+          },
+          formValid:false    
+        };
+        this.state={ inputForm:formObject};
+   
+     }
+
+    //  SubmitClick = () => {
+    //   axios({
+    //     method: 'post',
+    //     url: 'myurl',
+    //     data: this.state.inputForm.formValue
+    //     })
+    //     .then(function (response) {
+    //         //handle success
+    //         console.log();
+    //     })
+    //     .catch(function (response) {
+    //         //handle error
+    //         console.log("");
+    //     });
+    //  }
+    HandleChange= (event) =>{
+        
+        var ctrlName=event.target.name;
+        var ctrlValue = event.target.value;
+        var formObject= this.state.inputForm;
+        formObject.formValue[ctrlName]=ctrlValue;
+        this.setState({inputForm:formObject},()=>{this.validateField(ctrlName,ctrlValue)});
+    }
+
+    
+    validateField(fieldName, Value){
+      var errorMessages = this.state.inputForm.formValidationMessages;
+      var isNameValid = this.state.inputForm.formValidation.isNameValid;
+      var isEmailValid = this.state.inputForm.formValidation.isEmailValid;
+      var isCuisineValid = this.state.inputForm.formValidation.isCuisineValid;
+      var isPlatesValid = this.state.inputForm.formValidation.isNumber_of_platesValid;
+      var isDateValid = this.state.inputForm.formValidation.isDate_of_BookingValid;
+      switch (fieldName){
+        case 'Name':
+          isNameValid = Value.length > 0;
+          errorMessages.NameValidationMessage = isNameValid ? ' ' : 'is too short';
+          break;
+        case 'Email':
+          isEmailValid = Value.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i);
+          errorMessages.EmailValidationMessage = isEmailValid ? ' ' : 'is invalid';
+          break;
+        case 'Cuisine':
+          isCuisineValid = Value !=' ';
+          errorMessages.CuisineValidationMessage = isCuisineValid ? ' ' : 'Cuisine is not selected'; 
+        case 'Number_of_plates':
+          isPlatesValid = parseInt(Value) > 0 ;
+          errorMessages.isNumber_of_platesValid = isPlatesValid ? ' ' : 'Plates should be greater than 0';
+          break;
+        case 'Date_of_Booking' :
+          if (Value.length > 0)
+          {
+            var todayDate = new Date();
+            var arr = Value.split('-');
+            var selectedDate = new Date(arr[0],parseInt(arr[1])-1, arr[2]);  
+            isDateValid = selectedDate > todayDate;
+            errorMessages.isDate_of_BookingValid =  (selectedDate > todayDate) ? ' ' : 'Date of booking should be greater than today';
+
+          }
+          else
+          {
+            errorMessages.isDate_of_BookingValid = 'Please Enter Date';
+          }
+        default:
+          break;
+
+      }
+      var formObject = this.state.inputForm;
+      formObject.formValidationMessages = errorMessages;
+      formObject.formValidation.isNameValid = isNameValid;
+      formObject.formValidation.isEmailValid = isEmailValid;
+      formObject.formValidation.isCuisineValid = isCuisineValid;
+      formObject.formValidation.isNumber_of_platesValid = isPlatesValid;
+      formObject.formValidation.isDate_of_BookingValid = isDateValid;
+
+      if (formObject.formValidation.isNameValid && formObject.formValidation.isEmailValid
+         && formObject.formValidation.isCuisineValid && formObject.formValidation.isNumber_of_platesValid
+         && formObject.formValidation.isDate_of_BookingValid)
+         {
+           formObject.formValid = true;
+         }
+      this.setState({inputForm:formObject});
+    }
+   
+    render(){
+        return(
+            <div className="col-md-6 col-offset-3" >
+               <form>
+               <div className="form-group">
+                <label>Enter Name</label>
+                <input type="text" className="form-control" name="Name"  id="exampleInputName" onChange = {this.HandleChange}
+                placeholder="Enter Name"/>
+                {(!this.state.inputForm.formValidation.isNameValid)?<span className="alert-danger">{this.state.inputForm.formValidationMessages.NameValidationMessage}</span>:null}
+                
+              </div>
+              <div className="form-group">
+                <label>Email address</label>
+                <input type="email" className="form-control" name = "Email"id="exampleInputEmail1"  onChange = {this.HandleChange}
+                placeholder="Enter email"/>
+                 {(!this.state.inputForm.formValidation.isEmailValid)?<span className="alert-danger">{this.state.inputForm.formValidationMessages.EmailValidationMessage}</span>:null}
+              </div>
+              <div class="form-group">
+                <label for="exampleFormControlSelect1">Select Cuisine</label>
+                <select class="form-control" id="exampleSelectFood" name = "Cuisine"onChange = {this.HandleChange} >
+                  <option value=' ' selected>--Please Select--</option>
+                  <option value='South Indian'>South Indian</option>
+                  <option value ='North Indian'>North Indian</option>
+                  <option value='Italian'>Italian</option>
+                  <option value='Chinese'>Chinese</option>
+                </select>
+                {(!this.state.inputForm.formValidation.isCuisineValid)?<span className="alert-danger">{this.state.inputForm.formValidationMessages.CuisineValidationMessage}</span>:null}
+              </div>
+              <div className="form-group">
+                <label>Number of Plates</label>
+                <input type="text" className="form-control" id="exampleInputPlates" name="Number_of_plates" onChange = {this.HandleChange}
+                placeholder="Number of Plates"/>
+              {(!this.state.inputForm.formValidation.isNumber_of_platesValid)?<span className="alert-danger">{this.state.inputForm.formValidationMessages.Number_of_platesValidationMessage}</span>:null}
+              </div>
+              <div className="form-group">
+                <label>Date of Booking</label>
+                <input type="date" format="dd/mm/yyyy" className="form-control" id="exampleInputDate" name="Date_of_Booking" placeholder="Enter Date" onChange = {this.HandleChange}/>
+                {(!this.state.inputForm.formValidation.isDate_of_BookingValid)?<span className="alert-danger">{this.state.inputForm.formValidationMessages.Date_of_BookingValidationMessage}</span>:null}
+              </div>
+              
+              <button type="submit" className="btn btn-primary" disabled = {!this.state.inputForm.formValid }>Submit</button>
+            </form>
+            </div>
+        );
+    }
+       
+}
+
+export default Booking;

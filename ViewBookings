@@ -1,0 +1,110 @@
+import React,{Component} from 'react';
+import '../../src/bootstrap.min.css';
+import Booking from '../Booking';
+import axios from 'axios';
+class ViewBookings extends Component{
+    constructor(props){
+        super(props);
+        var BookingDetails={
+            Detail:{
+                "Name":"",
+                "Email":"",
+                "Cuisine":"",
+                "Booking_Date":"",
+                "Number_of_Plates":""
+            },
+            BookingID:""
+            
+        }
+        this.state={Details:BookingDetails};
+        this.ValidateField = this.ValidateField.bind(this);
+    }
+
+    HandleChange = (event) =>{
+        var BookingID = event.target.value;
+        var BookingObj = this.state.Details;
+        BookingObj.BookingID = BookingID;
+        this.setState({Details: BookingObj});
+
+    }
+
+    getDetails = (event) =>{
+        var obj = this.state.Details;
+        if (this.ValidateField()){
+
+        // axios.get('http://localhost:8086/login/check?userName='+this.state.Details.BookingID).then(response => {
+        //     obj.Detail.Name = response.Name;
+        //     obj.Detail.Email = response.Email;
+        //     obj.Detail.Cuisine = response.Cuisine;
+        // });
+        axios.get('https://jsonplaceholder.typicode.com/todos/1').then(response => {
+            obj.Detail.Name = response.data.title;
+            obj.Detail.Email = response.data.id;
+            obj.Detail.Number_of_Plates = response.data.userId;
+                })
+                .then(()=>{
+                     this.setState({Details: obj});
+                });
+            }
+       
+    }
+
+    ValidateField = () =>{
+        var objstate = this.state.Details;
+        
+        if (!objstate.BookingID.match(/^\d*$/)){
+            alert("Enter a valid Booking ID");
+            return false;
+        }
+        return true;
+        
+    }
+
+    render(){
+    return(
+        <div className="col-md-6 col-offset-3" >
+               
+               <div className="form-inline">
+                <label>Enter Booking ID</label>
+                &nbsp;&nbsp;
+                <input type="text" className="form-control" name="Name"  id="exampleInputBookingID" onChange = {this.HandleChange}
+                placeholder="Enter Booking ID"/>
+                &nbsp;&nbsp;
+                <button type="submit" className="btn btn-primary" onClick={this.getDetails}>View Booking Details</button>
+                </div>
+                <br/>
+                <div>
+                    {
+                        (this.state.Details.Detail.Name.length > 0 ? (<table className="table table-bordered">
+                            <tr>
+                                <th>BookingID</th>
+                                <td>{this.state.Details.BookingID}</td>
+                            </tr>
+                            <tr>
+                                <th>Name</th>
+                                <td>{this.state.Details.Detail.Name}</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>{this.state.Details.Detail.Email}</td>
+                            </tr>
+                            <tr>
+                                <th>Cuisine</th>
+                                <td>{this.state.Details.Detail.Cuisine}</td>
+                            </tr>
+                            <tr>
+                                <th>Number Of Plates</th>
+                                <td>{this.state.Details.Detail.Number_of_Plates}</td>
+                            </tr>
+                        </table>): null)
+                    
+                    }
+                </div>
+            
+            </div>
+    );
+    }
+}
+
+
+export default ViewBookings;
